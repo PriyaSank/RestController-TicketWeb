@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.ticket.dao.EmployeeDAO;
 import com.ticket.exception.ServiceException;
@@ -18,19 +19,19 @@ import com.ticket.model.RoleModel;
 import com.ticket.model.TicketDetailsModel;
 import com.ticket.service.EmployeeService;
 
-@Controller
+@RestController
 @RequestMapping("/admin")
 public class AdminController {
 	EmployeeService empSer = new EmployeeService();
 	RoleModel role = new RoleModel();
 	EmployeeDAO empDAO = new EmployeeDAO();
 	
-	@GetMapping("/viewTickets/{roleId}")
-	public List<TicketDetailsModel> view(@PathVariable("roleId") int roleId , ModelMap map) throws ServiceException {
+	@GetMapping("/viewTickets/{depId}")
+	public List<TicketDetailsModel> view(@PathVariable("depId") int depId , ModelMap map) throws ServiceException {
 
 				
 		 List<TicketDetailsModel> ticketList =
-		 empSer.viewTicketByDepartment(roleId);
+		 empSer.viewTicketByDepartment(depId);
 
 		 map.addAttribute("TICKET_LIST", ticketList);
 		 if (ticketList == null) {
@@ -42,38 +43,24 @@ public class AdminController {
 
 
 	@GetMapping("/assignEmp")
-	public String assignTicket(@RequestParam("ticId") int ticId, @RequestParam("empId") int toEmpId, HttpSession session)
+	public String assignTicket(@RequestParam("ticId") int ticId, @RequestParam("empId") int toEmpId,@RequestParam("email") String email)
 			throws ServiceException {
-		EmployeeModel b = (EmployeeModel) session.getAttribute("LOGGED_IN_ADMIN");
-System.out.println(b.getEmailId() + "aa");
-		if (empSer.assignTicket(b.getEmailId(), toEmpId, ticId)) {
+		
 
-			return "redirect:../AdminMainPage.jsp";
+		if (empSer.assignTicket(email, toEmpId, ticId)) {
+
+			return "Assignment successful";
 		} else
-			return "redirect:../Index.jsp";
+			return "Assignment failed";
 	}
 
-	@GetMapping("/reassignTicket")
-	public String reassign() throws ServiceException {
-
-		return "../ReassignTicket.jsp";
-	}
-
-	@GetMapping("/reassignTic")
-	public String reassignTic(@RequestParam("ticId") int ticId, @RequestParam("empId") int emp1Id,
-			@RequestParam("toEmpId") int toEmpId) throws ServiceException {
 
 
-		if (empSer.reassignTicket(emp1Id, toEmpId, ticId)) {
 
-			return "redirect:../AdminMainPage.jsp";
-		} else
-			return "redirect:../Index.jsp";
-	}
 	
-//	@GetMapping("/deleteTicket")
-//	public String delete(@RequestParam("ticId") int ticketId,ModelMap map) throws ServiceException {
-//		empSer.deleteTicket(ticketId);
-//		return "../AdminMainPage.jsp";
-//	}
+	@GetMapping("/deleteTicket")
+	public String delete(@RequestParam("ticId") int ticketId,ModelMap map) throws ServiceException {
+		empSer.deleteTicket(ticketId);
+		return "Success";
+	}
 }

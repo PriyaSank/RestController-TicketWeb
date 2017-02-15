@@ -103,12 +103,24 @@ public class EmployeeController {
 			map.addAttribute("ERROR", "Error found");
 			return "Reply not registered";
 		}
-
+ }
 		
-	}
+		@GetMapping("/reassignTicket")
+		public String reassign(@RequestParam("emp2Id") int emp2Id,@RequestParam("email") String email,@RequestParam("ticId") int ticId,ModelMap map)  {
+		
+			try {
+				if (empSer.reassignTicket(email, emp2Id, ticId)) {
 
-
-
+					return "Reassigned successfully";
+				} 
+			} catch (ServiceException e) {
+				map.addAttribute("ERROR",e.getMessage());
+		
+			}
+			return "Failed";
+		}
+		
+	
 
 	
 }
